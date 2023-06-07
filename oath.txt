@@ -1,0 +1,47 @@
+gradle spring boot employee management system with oath2 login,controller,repository,requestdto,responsedto,service,service implementation,application properties
+
+spring.security.oauth2.client.registration.google.client-id=478880646931-u8m2ve0ac7o0npukj807gm132tbcc2ci.apps.googleusercontent.com
+spring.security.oauth2.client.registration.google.client-secret=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
+spring.security.oauth2.client.registration.google.redirect-uri=https://oauth.pstmn.io/v1/callback
+spring.security.oauth2.client.provider.google.authorization-uri=https://accounts.google.com/o/oauth2/auth
+spring.security.oauth2.client.provider.google.token-uri=https://accounts.google.com/o/oauth2/token
+spring.security.oauth2.client.registration.google.scope=openid profile email
+
+
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+public class SecurityConfig extends WebSecurityConfigurerAdapter{
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+      http
+              .authorizeRequests()
+              .antMatchers("/api/v1/").authenticated()
+              .anyRequest().permitAll()
+              .and()
+              .oauth2Login()
+              .and()
+              .logout()
+              .logoutUrl("/logout")
+              .logoutSuccessUrl("/")
+              .invalidateHttpSession(true)
+              .clearAuthentication(true)
+              .deleteCookies("JSESSIONID");
+  }
+  @Override
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+      PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+      auth
+              .inMemoryAuthentication()
+              .withUser("user")
+              .password(passwordEncoder.encode("password"))
+              .roles("USER");
+  }
+}
+
+
+implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
